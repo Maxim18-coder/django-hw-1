@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.http import HttpResponse, Http404
 
 DATA = {
     'omlet': {
@@ -27,4 +28,61 @@ DATA = {
 #     'ингредиент1': количество1,
 #     'ингредиент2': количество2,
 #   }
-# }
+
+def get_recipe(recipe_name, servings):
+    if recipe_name not in DATA:
+        raise Http404("Рецепт не найден")
+
+    recipe = DATA[recipe_name]
+
+    if servings > 0:
+        return {ingredient: amount * servings for ingredient, amount in recipe.items()}
+    return recipe
+
+def omlet(request):
+    servings = request.GET.get('servings', 1)  # По умолчанию 1 порция
+    try:
+        servings = int(servings)
+        if servings < 1:
+            raise ValueError
+    except ValueError:
+        return HttpResponse("Параметр servings должен быть положительным целым числом.", status=400)
+
+    recipe = get_recipe('omlet', servings)
+
+    context = {
+        'recipe': recipe,
+    }
+    return render(request, 'calculator/index.html', context)
+
+def pasta(request):
+    servings = request.GET.get('servings', 1)
+    try:
+        servings = int(servings)
+        if servings < 1:
+            raise ValueError
+    except ValueError:
+        return HttpResponse("Параметр servings должен быть положительным целым числом.", status=400)
+
+    recipe = get_recipe('pasta', servings)
+
+    context = {
+        'recipe': recipe,
+    }
+    return render(request, 'calculator/index.html', context)
+
+def buter(request):
+    servings = request.GET.get('servings', 1)
+    try:
+        servings = int(servings)
+        if servings < 1:
+            raise ValueError
+    except ValueError:
+        return HttpResponse("Параметр servings должен быть положительным целым числом.", status=400)
+
+    recipe = get_recipe('buter', servings)
+
+    context = {
+        'recipe': recipe,
+    }
+    return render(request, 'calculator/index.html', context)
